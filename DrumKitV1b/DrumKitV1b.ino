@@ -7,12 +7,13 @@ const unsigned char ACOUSTICBASSDRUM = 35;
 const unsigned char ACOUSTICSNARE = 38;
 const unsigned char OPENHIGHHAT = 46;
 const unsigned char CLOSEDHIGHHAT = 42;
+const unsigned char PEDALHIGHHAT = 44;
 const unsigned char LOWTOM = 45;
 const unsigned char HIGHTOM = 50;
 const unsigned char CRASHSYM = 49;
 
-unsigned char PadNote[6] = { CRASHSYM,ACOUSTICBASSDRUM,CLOSEDHIGHHAT,ACOUSTICSNARE,LOWTOM,HIGHTOM };         // MIDI notes from 0 to 127 (Mid C = 60)
-unsigned char PadNoteSwitched[6] = { CRASHSYM,ACOUSTICBASSDRUM,OPENHIGHHAT,ACOUSTICSNARE,LOWTOM,HIGHTOM };         // MIDI notes from 0 to 127 (Mid C = 60)
+unsigned char PadNote[6] = { CRASHSYM,ACOUSTICBASSDRUM,OPENHIGHHAT,ACOUSTICSNARE,LOWTOM,HIGHTOM };         // MIDI notes from 0 to 127 (Mid C = 60)
+unsigned char PadNoteSwitched[6] = { CRASHSYM,ACOUSTICBASSDRUM,CLOSEDHIGHHAT,ACOUSTICSNARE,LOWTOM,HIGHTOM };         // MIDI notes from 0 to 127 (Mid C = 60)
 
 int PadCutOff[6] = { 30,30,30,30,30,30 };           // Minimum Analog value to cause a drum hit
 
@@ -26,7 +27,7 @@ boolean Switches[6] = { 0,0,0,0,0,0 };
 boolean VelocityFlag = true;                           // Velocity ON (true) or OFF (false)
 
 int Amplifier[6] = { 50,100,100,50,100,100 };           // Minimum Analog value to cause a drum hit
-int dAmplifier[6] = { 100,50,100,50,50,100 };           // Minimum Analog value to cause a drum hit
+int dAmplifier[6] = { 100,50,100,50,100,100 };           // Minimum Analog value to cause a drum hit
 
 const int footSwitch = 4;
 const int footSwitchNote = 2;
@@ -43,7 +44,7 @@ unsigned long VelocityMax[7] = { 0,0,0,0,0,0,0 };                     // Counter
 boolean dActivePad[7] = { 0,0,0,0,0,0,0 };                   // Array of flags of pad currently playing
 unsigned long dPinPlayTime[7] = { 0,0,0,0,0,0,0 };                     // Counter since pad started to play
 unsigned long dVelocityMax[7] = { 0,0,0,0,0,0,0 };                     // Counter since pad started to play
-unsigned char dPadNote[7] = { 49,35,42,40,ACOUSTICBASSDRUM,45 };         // MIDI notes from 0 to 127 (Mid C = 60)
+unsigned char dPadNote[7] = { 49,35,42,40,PEDALHIGHHAT,45 };         // MIDI notes from 0 to 127 (Mid C = 60)
 bool dMidiOn[7] = { false,false,false,false,false,false,false };
 unsigned long dMaxPlayTime[7] = { 1000,1000,1000,1000,100,1000,1000 };               // Cycles before a 2nd hit is allowed
 
@@ -152,7 +153,7 @@ void digitals()
 				MIDI_TX(0x90, dPadNote[pin], min((127 * dAmplifier[pin] / 100), 127));
 				dMidiOn[pin] = true;
 			}
-			else if (t - dPinPlayTime[pin] > 1000 * dMaxPlayTime[pin])
+			else if (t - dPinPlayTime[pin] > 1000 * dMaxPlayTime[pin] && Switches[footSwitchNote] == 0)
 			{
 				dActivePad[pin] = false;
 				MIDI_TX(0x80, dPadNote[pin], 0);
@@ -205,6 +206,6 @@ void loop()
 {
 	switches();
 	analogues();
-	//  digitals();
+	digitals();
 }
 
